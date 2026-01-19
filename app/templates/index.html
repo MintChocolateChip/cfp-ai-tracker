@@ -1,0 +1,262 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>CFP AI Tracker — Demo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="header">
+      <div>
+        <div class="kicker">CFP NATIONAL CHAMPIONSHIP</div>
+
+        <h1 class="titleRow">
+          {% if away_logo %}<img class="teamLogo" src="{{ away_logo }}" alt="{{ state.away_team }} logo">{% endif %}
+          <span id="hdrAwayTeam">{{ state.away_team }}</span>
+          <span style="opacity:.6;"> vs </span>
+          <span id="hdrHomeTeam">{{ state.home_team }}</span>
+          {% if home_logo %}<img class="teamLogo" src="{{ home_logo }}" alt="{{ state.home_team }} logo">{% endif %}
+        </h1>
+
+        <div class="sub">
+          Kickoff (PT): <span class="mono" id="kickoffText">{{ kickoff }}</span>
+        </div>
+
+        <div class="hint">
+          FSM State: <b id="fsmState">{{ state.phase }}</b>
+          · Polls: <b id="pollCount">{{ meta.poll_count }}</b>
+        </div>
+      </div>
+      <div class="badge" id="statusBadge">{{ state.status | upper }}</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">Score</div>
+        <div class="score">
+          <div class="team">
+            <span class="teamName">
+              {% if away_logo %}<img class="teamLogoSm" src="{{ away_logo }}" alt="">{% endif %}
+              <span id="cardAwayTeam">{{ state.away_team }}</span>
+            </span>
+            <span class="pts" id="awayScore">{{ state.away_score }}</span>
+          </div>
+          <div class="team">
+            <span class="teamName">
+              {% if home_logo %}<img class="teamLogoSm" src="{{ home_logo }}" alt="">{% endif %}
+              <span id="cardHomeTeam">{{ state.home_team }}</span>
+            </span>
+            <span class="pts" id="homeScore">{{ state.home_score }}</span>
+          </div>
+        </div>
+        <div class="meta">
+          Kickoff in:
+          <span id="countdown" class="mono" data-kickoff="{{ kickoff }}">--:--:--</span>
+          <span id="clockLine"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="rowhead">
+          <div class="label">Win Probability + Explainer</div>
+          <button class="mini" data-clear="winprob" title="Clear win-prob">Clear</button>
+        </div>
+        <ul class="feed scroll" id="winprobFeed">
+          {% for line in winprob_history %}
+            <li>{{ line }}</li>
+          {% else %}
+            <li style="opacity:.75;">No win-prob updates yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="rowhead">
+          <div class="label">Mendoza Watch</div>
+          <button class="mini" data-clear="mendoza" title="Clear Mendoza">Clear</button>
+        </div>
+
+        <div class="playerRow">
+          {% if player_img %}<img class="playerImg" src="{{ player_img }}" alt="{{ player_name }}">{% endif %}
+          <div class="playerMeta">
+            <div class="playerName">{{ player_name }}</div>
+            <div class="hint">QB — tracked stats + impact notes</div>
+          </div>
+        </div>
+
+        <ul class="feed scroll" id="mendozaFeed">
+          {% for line in mendoza_notes %}
+            <li>{{ line }}</li>
+          {% else %}
+            <li style="opacity:.75;">No Mendoza updates yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="rowhead">
+          <div class="label">AI Live Commentary</div>
+          <button class="mini" data-clear="commentary" title="Clear commentary">Clear</button>
+        </div>
+        <ul class="feed scroll" id="commentaryFeed">
+          {% for line in commentary %}
+            <li>{{ line }}</li>
+          {% else %}
+            <li style="opacity:.75;">No commentary yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="rowhead">
+          <div class="label">Postgame Recap</div>
+          <button class="mini" data-clear="recap" title="Clear recap">Clear</button>
+        </div>
+        <div class="feed scroll" id="recapBox" style="padding-left:0;">
+          {% if postgame_recap %}
+            <div>{{ postgame_recap }}</div>
+          {% else %}
+            <div style="opacity:.75;">Recap will generate automatically when the game status becomes <b>FINAL</b>.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <form method="post" action="/admin/poll" style="display:inline">
+        <button type="submit">Poll Now</button>
+      </form>
+
+      <label class="hint" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="demoAutoplay">
+        Demo autoplay
+      </label>
+
+      <span class="hint" id="lastUpdate"></span>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  const el = (id) => document.getElementById(id);
+  const setText = (id, v) => { if (el(id) && v !== undefined && v !== null) el(id).textContent = String(v); };
+
+  // countdown
+  const countdownEl = el("countdown");
+  if (countdownEl) {
+    const kickoffIso = countdownEl.dataset.kickoff;
+    const kickoff = new Date(kickoffIso);
+    const pad = (n) => String(n).padStart(2, "0");
+    function tick() {
+      let diff = Math.floor((kickoff - new Date()) / 1000);
+      if (diff < 0) diff = 0;
+      countdownEl.textContent = `${pad(Math.floor(diff/3600))}:${pad(Math.floor(diff%3600/60))}:${pad(diff%60)}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    const kt = el("kickoffText");
+    if (kt) {
+      try {
+        kt.textContent = kickoff.toLocaleString(undefined, { weekday:"short", month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+      } catch {}
+    }
+  }
+
+  function renderList(ulId, list, emptyHtml) {
+    const ul = el(ulId);
+    if (!ul) return;
+    ul.innerHTML = "";
+    if (!list || list.length === 0) {
+      const li = document.createElement("li");
+      li.style.opacity = "0.75";
+      li.innerHTML = emptyHtml;
+      ul.appendChild(li);
+      return;
+    }
+    list.slice(0, 50).forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+  }
+
+  function renderRecap(text) {
+    const box = el("recapBox");
+    if (!box) return;
+    box.innerHTML = "";
+    const div = document.createElement("div");
+    div.style.opacity = text ? "1.0" : "0.75";
+    div.innerHTML = text ? text : 'Recap will generate automatically when the game status becomes <b>FINAL</b>.';
+    box.appendChild(div);
+  }
+
+  async function refreshState() {
+    try {
+      const r = await fetch("/api/state", { cache: "no-store" });
+      if (!r.ok) return;
+      const d = await r.json();
+      const s = d.state || {};
+      const meta = d.meta || {};
+
+      setText("statusBadge", (s.status || "pregame").toUpperCase());
+      setText("fsmState", s.phase || "");
+      setText("pollCount", meta.poll_count ?? "");
+      setText("lastUpdate", meta.last_update_iso ? ("Last update: " + meta.last_update_iso) : "");
+
+      setText("hdrAwayTeam", s.away_team);
+      setText("hdrHomeTeam", s.home_team);
+      setText("cardAwayTeam", s.away_team);
+      setText("cardHomeTeam", s.home_team);
+      setText("awayScore", s.away_score ?? 0);
+      setText("homeScore", s.home_score ?? 0);
+
+      const clockLine = el("clockLine");
+      if (clockLine) clockLine.textContent = s.quarter ? ` · Q${s.quarter} ${s.clock || ""}` : "";
+
+      renderList("commentaryFeed", d.commentary || [], 'No commentary yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).');
+      renderList("mendozaFeed", d.mendoza_notes || [], 'No Mendoza updates yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).');
+      renderList("winprobFeed", d.winprob_history || [], 'No win-prob updates yet. Click <b>Poll Now</b> (or enable <b>Demo autoplay</b>).');
+      renderRecap(d.postgame_recap || null);
+    } catch {}
+  }
+
+  // clear buttons
+  document.querySelectorAll("button[data-clear]").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const panel = btn.dataset.clear;
+      await fetch(`/admin/clear/${panel}`, { method: "POST" });
+      refreshState();
+    });
+  });
+
+  refreshState();
+  setInterval(refreshState, 5000);
+
+  // demo autoplay
+  let demoMode = false;
+  fetch("/api/settings", { cache: "no-store" })
+    .then(r => r.json())
+    .then(s => {
+      demoMode = !!s.demo_mode;
+      const chk = el("demoAutoplay");
+      if (chk && !demoMode) {
+        chk.checked = false;
+        chk.disabled = true;
+        chk.parentElement.style.opacity = "0.5";
+      }
+    })
+    .catch(() => {});
+
+  setInterval(() => {
+    const chk = el("demoAutoplay");
+    if (demoMode && chk && chk.checked) {
+      fetch("/admin/poll", { method: "POST" }).then(refreshState);
+    }
+  }, 15000);
+})();
+</script>
+</body>
+</html>

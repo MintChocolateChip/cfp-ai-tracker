@@ -1,0 +1,8 @@
+pyproject.toml
+app/__init__.py
+app/main.py
+cfp_ai_tracker.egg-info/PKG-INFO
+cfp_ai_tracker.egg-info/SOURCES.txt
+cfp_ai_tracker.egg-info/dependency_links.txt
+cfp_ai_tracker.egg-info/requires.txt
+cfp_ai_tracker.egg-info/top_level.txt

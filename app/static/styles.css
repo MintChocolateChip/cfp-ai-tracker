@@ -1,0 +1,52 @@
+:root { color-scheme: dark; }
+body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#070a12; color:#e7eaf2;}
+.wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+.header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.kicker { letter-spacing: .25em; font-weight: 700; color:#9aa3b2; font-size: 12px; }
+h1 { margin: 6px 0 0; font-size: 28px; }
+.sub { color:#9aa3b2; font-size: 13px; margin-top: 6px; }
+.badge { padding: 8px 12px; border: 1px solid #2a3140; border-radius: 999px; font-weight:700; color:#cbd5e1;}
+.grid { display:grid; grid-template-columns: 1fr; gap: 14px; margin-top: 18px; }
+.card { background: rgba(255,255,255,.03); border: 1px solid #1f2633; border-radius: 12px; padding: 14px; }
+.label { color:#9aa3b2; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
+.score { display:grid; gap: 8px; margin-top: 8px; }
+.team { display:flex; justify-content:space-between; font-size: 20px; font-weight: 700; }
+.pts { font-variant-numeric: tabular-nums; }
+.meta { margin-top: 10px; color:#9aa3b2; font-size: 13px; }
+.feed { margin: 0; padding-left: 18px; }
+.footer { display:flex; align-items:center; gap: 12px; margin-top: 16px; }
+button { background:#1d4ed8; color:white; border:0; padding:10px 12px; border-radius: 8px; font-weight: 700; cursor:pointer; }
+.hint { color:#9aa3b2; font-size: 13px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+/* --- panel usability --- */
+.rowhead { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.scroll { max-height: 160px; overflow:auto; padding-right: 6px; }
+.mini {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85);
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.mini:hover { border-color: rgba(255,255,255,0.35); }
+
+/* --- override: smaller clear buttons --- */
+.mini{
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  border-radius: 8px !important;
+  line-height: 1 !important;
+}
+
+/* --- team/player images --- */
+.titleRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.teamLogo{ height:28px; width:auto; opacity:0.95; }
+.teamName{ display:flex; align-items:center; gap:10px; }
+.teamLogoSm{ height:18px; width:auto; opacity:0.95; }
+
+.playerRow{ display:flex; align-items:center; gap:12px; margin: 6px 0 10px; }
+.playerImg{ height:44px; width:44px; border-radius:10px; object-fit:cover; border:1px solid rgba(255,255,255,0.14); }
+.playerName{ font-weight:800; letter-spacing:0.2px; }
