@@ -1,27 +1,6 @@
 {
-  "state": {
-    "home_team": "Miami",
-    "away_team": "Indiana",
-    "home_score": 10,
-    "away_score": 14,
-    "status": "live",
-    "quarter": 3,
-    "clock": "06:55",
-    "mendoza": {
-      "pass_yds": 214,
-      "td": 2,
-      "int": 1
-    },
-    "phase": "LIVE"
-  },
-  "commentary": [],
-  "mendoza_notes": [],
-  "winprob_home": null,
-  "winprob_history": [],
-  "postgame_recap": null,
   "meta": {
-    "poll_count": 6,
-    "last_update_iso": "2026-01-19T21:26:24.093575+00:00",
-    "demo_mode": true
+    "demo_mode": false,
+    "demo_idx": null
   }
 }

@@ -124,13 +124,11 @@
     </section>
 
     <footer class="footer">
-      <form method="post" action="/admin/poll" style="display:inline">
-        <button type="submit">Poll Now</button>
-      </form>
+      <button id="pollNowBtn">Poll Now</button>
 
       <label class="hint" style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="demoAutoplay">
-        Demo autoplay
+        <input type="checkbox" id="autoPolling">
+        Auto-poll (every 15s)
       </label>
 
       <span class="hint" id="lastUpdate"></span>
@@ -232,27 +230,27 @@
     });
   });
 
+  // Poll Now button
+  const pollBtn = el("pollNowBtn");
+  if (pollBtn) {
+    pollBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      pollBtn.disabled = true;
+      pollBtn.textContent = "Polling...";
+      await fetch("/admin/poll", { method: "POST" });
+      await refreshState();
+      pollBtn.disabled = false;
+      pollBtn.textContent = "Poll Now";
+    });
+  }
+
   refreshState();
   setInterval(refreshState, 5000);
 
-  // demo autoplay
-  let demoMode = false;
-  fetch("/api/settings", { cache: "no-store" })
-    .then(r => r.json())
-    .then(s => {
-      demoMode = !!s.demo_mode;
-      const chk = el("demoAutoplay");
-      if (chk && !demoMode) {
-        chk.checked = false;
-        chk.disabled = true;
-        chk.parentElement.style.opacity = "0.5";
-      }
-    })
-    .catch(() => {});
-
+  // Auto-polling (works in both demo and live mode)
   setInterval(() => {
-    const chk = el("demoAutoplay");
-    if (demoMode && chk && chk.checked) {
+    const chk = el("autoPolling");
+    if (chk && chk.checked) {
       fetch("/admin/poll", { method: "POST" }).then(refreshState);
     }
   }, 15000);

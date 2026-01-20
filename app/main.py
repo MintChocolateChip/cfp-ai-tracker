@@ -25,8 +25,6 @@ from app.ai_engine import (
 from app.persist import load_state, save_state
 from app.assets import team_logo_url, player_image_url
 
-PLAYER_NAME = "Fernando Mendoza"
-
 app = FastAPI(title="Event-Driven CFP Analysis Engine")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
@@ -56,8 +54,8 @@ def _asset_payload(state: dict | None) -> dict:
     return {
         "away_logo": team_logo_url(away),
         "home_logo": team_logo_url(home),
-        "player_name": PLAYER_NAME,
-        "player_img": player_image_url(PLAYER_NAME),
+        "player_name": settings.tracked_player,
+        "player_img": player_image_url(settings.tracked_player),
     }
 
 def _payload() -> dict:
