@@ -1,3 +1,9 @@
+
+<img width="1266" height="585" alt="IMG_5516" src="https://github.com/user-attachments/assets/737cc2c4-3171-4cce-846d-1da1082f028d" />
+
+<img width="1456" height="755" alt="Screenshot 2026-01-19 at 7 35 51 PM" src="https://github.com/user-attachments/assets/bc64ba62-7eb3-41ab-aeaa-44b600e2aecb" />
+
+
 # Event-Driven CFP Analysis Engine
 
 This project demonstrates a deterministic, event-driven analysis system inspired by
